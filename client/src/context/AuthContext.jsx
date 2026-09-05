@@ -6,6 +6,10 @@ import {
 
 export const AuthContext = createContext();
 
+// Backend API URL
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
@@ -22,7 +26,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = async (authToken) => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/me",
+        `${API_URL}/api/auth/me`,
         {
           method: "GET",
           headers: {
@@ -76,7 +80,7 @@ export const AuthProvider = ({ children }) => {
   ) => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/login",
+        `${API_URL}/api/auth/login`,
         {
           method: "POST",
 
@@ -139,7 +143,7 @@ export const AuthProvider = ({ children }) => {
   ) => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/register",
+        `${API_URL}/api/auth/register`,
         {
           method: "POST",
 
@@ -206,7 +210,7 @@ export const AuthProvider = ({ children }) => {
       // Tell backend to clear its cookie
       if (storedToken) {
         await fetch(
-          "http://localhost:5000/api/auth/logout",
+          `${API_URL}/api/auth/logout`,
           {
             method: "POST",
 

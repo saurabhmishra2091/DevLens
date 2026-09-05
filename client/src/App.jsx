@@ -7,6 +7,12 @@ import Register from "./pages/Register";
 import AskDevLensModal from "./components/AskDevLensModal";
 import "./App.css";
 
+// Backend API URL
+// Local: falls back to http://localhost:5000
+// Production: set VITE_API_URL in your hosting environment
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 function DashboardView() {
   const [projectPath, setProjectPath] = useState(
     "C:\\Users\\HP\\Desktop\\DevLens",
@@ -75,7 +81,7 @@ function DashboardView() {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/dashboard", {
+      const response = await fetch(`${API_URL}/api/dashboard`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -119,7 +125,7 @@ function DashboardView() {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/reports/${reportId}`,
+        `${API_URL}/api/reports/${reportId}`,
         {
           method: "GET",
           headers: {
@@ -221,7 +227,7 @@ function DashboardView() {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/reports/${reportId}`,
+        `${API_URL}/api/reports/${reportId}`,
         {
           method: "DELETE",
           headers: {
@@ -270,7 +276,7 @@ function DashboardView() {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/scan", {
+      const response = await fetch(`${API_URL}/api/scan`, {
         method: "POST",
 
         headers: {
