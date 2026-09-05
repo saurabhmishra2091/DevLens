@@ -25,7 +25,7 @@ exports.registerUser = async (req, res) => {
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({
+      return res.status(400).json({ // 409 instead of 400
         success: false,
         message: "User with this email already exists",
       });
@@ -117,3 +117,4 @@ exports.logoutUser = async (req, res) => {
     });
   }
 };
+// i am not saving my coockies . please save my coockies
