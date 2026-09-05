@@ -11,7 +11,9 @@ import "./App.css";
 // Local: falls back to http://localhost:5000
 // Production: set VITE_API_URL in your hosting environment
 const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://devlens-backend-lyum.onrender.com";
 
 function DashboardView() {
   const [projectPath, setProjectPath] = useState(

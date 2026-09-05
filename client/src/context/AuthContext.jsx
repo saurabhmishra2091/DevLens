@@ -8,7 +8,9 @@ export const AuthContext = createContext();
 
 // Backend API URL
 const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://devlens-backend-lyum.onrender.com";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
