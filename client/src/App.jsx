@@ -623,260 +623,6 @@ const scanProject = async () => {
     return explanationParts.join(" ");
   };
 
-  // ==========================================
-  // ASK DEV LENS
-  // ==========================================
-
-  // const askDevLens = () => {
-  //   const lowerQuestion =
-  //     question.toLowerCase();
-
-  //   if (files.length === 0) {
-  //     setAnswer(
-  //       "Please scan a project first."
-  //     );
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("auth") ||
-  //     lowerQuestion.includes("login")
-  //   ) {
-  //     const authFiles = files.filter(
-  //       (file) => {
-  //         const text =
-  //           `${file.name || ""} ${
-  //             file.path || ""
-  //           } ${
-  //             file.importance || ""
-  //           }`.toLowerCase();
-
-  //         return (
-  //           text.includes("auth") ||
-  //           text.includes("login") ||
-  //           text.includes("jwt") ||
-  //           text.includes("token")
-  //         );
-  //       }
-  //     );
-
-  //     setAnswer(
-  //       authFiles.length === 0
-  //         ? "I could not find obvious authentication files yet."
-  //         : `Authentication-related files found: ${authFiles
-  //             .map((file) => file.path)
-  //             .join(", ")}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (lowerQuestion.includes("api")) {
-  //     setAnswer(
-  //       apiCallFiles.length === 0
-  //         ? "No frontend API calls were detected."
-  //         : `API calls were found in: ${apiCallFiles
-  //             .map((file) => file.path)
-  //             .join(", ")}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (lowerQuestion.includes("route")) {
-  //     setAnswer(
-  //       backendRouteFiles.length === 0
-  //         ? "No backend routes were detected."
-  //         : `Backend routes were found in: ${backendRouteFiles
-  //             .map((file) => file.path)
-  //             .join(", ")}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("component")
-  //   ) {
-  //     setAnswer(
-  //       insights.components.length === 0
-  //         ? "No React components were detected."
-  //         : `React components found: ${insights.components
-  //             .map((file) => file.path)
-  //             .join(", ")}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("entry") ||
-  //     lowerQuestion.includes("start")
-  //   ) {
-  //     const entryFiles = files.filter(
-  //       (file) =>
-  //         [
-  //           "React entry point",
-  //           "Backend entry point",
-  //           "Main app component",
-  //         ].includes(file.importance)
-  //     );
-
-  //     setAnswer(
-  //       entryFiles.length === 0
-  //         ? "I could not identify entry point files yet."
-  //         : `Important entry files: ${entryFiles
-  //             .map(
-  //               (file) =>
-  //                 `${file.importance}: ${file.path}`
-  //             )
-  //             .join(", ")}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("tech") ||
-  //     lowerQuestion.includes("stack")
-  //   ) {
-  //     setAnswer(
-  //       techStack.length === 0
-  //         ? "No technologies were detected yet."
-  //         : `Detected technologies: ${techStack.join(
-  //             ", "
-  //           )}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("folder") ||
-  //     lowerQuestion.includes("structure")
-  //   ) {
-  //     setAnswer(
-  //       folders.length === 0
-  //         ? "No folders were detected yet."
-  //         : `Detected folders: ${folders.join(
-  //             ", "
-  //           )}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("unused")
-  //   ) {
-  //     setAnswer(
-  //       unusedFiles.length === 0
-  //         ? "No unused files were detected."
-  //         : `Unused files: ${unusedFiles
-  //             .map((file) => file.path)
-  //             .join(", ")}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("security") ||
-  //     lowerQuestion.includes("warning")
-  //   ) {
-  //     setAnswer(
-  //       securityWarningFiles.length === 0 &&
-  //         securityAudit.length === 0
-  //         ? "No security warnings were detected."
-  //         : `Security warnings found: ${
-  //             securityWarningFiles
-  //               .map(
-  //                 (file) =>
-  //                   `${file.path}: ${(
-  //                     file.analysis
-  //                       ?.securityWarnings ||
-  //                     []
-  //                   ).join(", ")}`
-  //               )
-  //               .join(", ") ||
-  //             securityAudit
-  //               .map(
-  //                 (item) =>
-  //                   `${item.path}: ${item.warning}`
-  //               )
-  //               .join(", ")
-  //           }`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("duplicate")
-  //   ) {
-  //     setAnswer(
-  //       duplicateGroups.length === 0
-  //         ? "No possible duplicate files were detected."
-  //         : `Possible duplicate groups found: ${duplicateGroups.length}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("complex")
-  //   ) {
-  //     setAnswer(
-  //       complexFiles.length === 0
-  //         ? "No complex files were detected."
-  //         : `Complex files: ${complexFiles
-  //             .map(
-  //               (file) =>
-  //                 `${file.path} (${file.analysis.complexity})`
-  //             )
-  //             .join(", ")}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("large")
-  //   ) {
-  //     setAnswer(
-  //       largeFiles.length === 0
-  //         ? "No large files were detected."
-  //         : `Large files: ${largeFiles
-  //             .map(
-  //               (file) =>
-  //                 `${file.path} (${file.analysis.lines} lines)`
-  //             )
-  //             .join(", ")}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   if (
-  //     lowerQuestion.includes("model") ||
-  //     lowerQuestion.includes("database")
-  //   ) {
-  //     setAnswer(
-  //       modelFiles.length === 0
-  //         ? "No database models were detected."
-  //         : `Database models found in: ${modelFiles
-  //             .map((file) => file.path)
-  //             .join(", ")}`
-  //     );
-
-  //     return;
-  //   }
-
-  //   setAnswer(
-  //     "I can currently answer about authentication, API calls, routes, components, entry points, tech stack, folders, unused files, security, duplicates, complexity, large files, and database models."
-  //   );
-  // };
-
   const handleModalQuestion = async (selectedQuestion) => {
     setQuestion(selectedQuestion);
     setAskError("");
@@ -2011,6 +1757,8 @@ function App() {
 
   const navigate = useNavigate();
 
+  const [showSettings, setShowSettings] = useState(false);
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -2026,18 +1774,82 @@ function App() {
         </div>
 
         {user && (
-          <div className="user-profile-header">
-            <span>
-              Welcome, <strong>{user.name}</strong>
-            </span>
+  <div className="user-profile-header">
+    <span>
+      Welcome, <strong>{user.name}</strong>
+    </span>
 
-            <button onClick={handleLogout} className="logout-btn">
-              Logout
-            </button>
-          </div>
-        )}
+    <button
+      onClick={() => setShowSettings(true)}
+      className="settings-btn"
+    >
+      Account Settings
+    </button>
+
+    <button
+      onClick={handleLogout}
+      className="logout-btn"
+    >
+      Logout
+    </button>
+  </div>
+)}
       </header>
+{showSettings && (
+  <div
+    className="settings-overlay"
+    onClick={() => setShowSettings(false)}
+  >
+    <div
+      className="account-settings-modal"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div className="settings-modal-header">
+        <div>
+          <h2>Account Settings</h2>
+          <p>Manage your DevLens account</p>
+        </div>
 
+        <button
+          className="close-settings-btn"
+          onClick={() => setShowSettings(false)}
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="settings-option">
+        <div>
+          <h3>Change Password</h3>
+
+          <p>
+            Update your password to keep
+            your account secure.
+          </p>
+        </div>
+
+        <button className="change-password-btn">
+          Change Password
+        </button>
+      </div>
+
+      <div className="settings-option danger-option">
+        <div>
+          <h3>Delete Account</h3>
+
+          <p>
+            Permanently delete your account
+            and all saved project reports.
+          </p>
+        </div>
+
+        <button className="delete-account-btn">
+          Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       <Routes>
         <Route path="/login" element={<Login />} />
 
