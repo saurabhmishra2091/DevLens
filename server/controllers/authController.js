@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const ScanReport = require("../models/ScanReport");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
