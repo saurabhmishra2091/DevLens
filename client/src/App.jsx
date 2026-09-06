@@ -14,11 +14,14 @@ const API_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5000"
     : "https://devlens-backend-lyum.onrender.com";
+// const API_URL = "http://localhost:5000";
 
 function DashboardView() {
-  const [projectPath, setProjectPath] = useState(
-    "C:\\Users\\HP\\Desktop\\DevLens",
-  );
+  // const [projectPath, setProjectPath] = useState(
+  //   "C:\\Users\\HP\\Desktop\\DevLens",
+  // );
+  const [projectPath, setProjectPath] = useState("");
+const [projectFile, setProjectFile] = useState(null);
 
   // Dashboard data from backend
   const [dashboardStats, setDashboardStats] = useState({
@@ -264,99 +267,225 @@ function DashboardView() {
   // SCAN PROJECT
   // ==========================================
 
-  const scanProject = async () => {
-    setLoading(true);
-    setMessage("");
-    setAnswer("");
+  // const scanProject = async () => {
+  //   setLoading(true);
+  //   setMessage("");
+  //   setAnswer("");
 
-    try {
-      const token = localStorage.getItem("devlens_token");
+  //   try {
+  //     const token = localStorage.getItem("devlens_token");
 
-      if (!token) {
-        setMessage("Please login before scanning a project.");
-        setLoading(false);
-        return;
-      }
+  //     if (!token) {
+  //       setMessage("Please login before scanning a project.");
+  //       setLoading(false);
+  //       return;
+  //     }
 
-      const response = await fetch(`${API_URL}/api/scan`, {
+  //     const response = await fetch(`${API_URL}/api/scan`, {
+  //       method: "POST",
+
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+
+  //       body: JSON.stringify({
+  //         projectPath,
+  //       }),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (data.success) {
+  //       const report = data.report || data;
+
+  //       setFiles(report.files || []);
+
+  //       setTotalFiles(report.totalFiles || report.files?.length || 0);
+
+  //       setSummary(
+  //         report.summary || {
+  //           reactComponents: 0,
+  //           javascriptFiles: 0,
+  //           cssFiles: 0,
+  //           jsonFiles: 0,
+  //           backendFiles: 0,
+  //           otherFiles: 0,
+  //         },
+  //       );
+
+  //       setInsights(
+  //         report.insights || {
+  //           components: [],
+  //           importantFiles: [],
+  //         },
+  //       );
+
+  //       setFlows(report.flows || []);
+
+  //       setRouteHealth(
+  //         report.routeHealth || {
+  //           totalApiCalls: 0,
+  //           matchedApiCalls: 0,
+  //           unmatchedApiCalls: 0,
+  //           unmatchedFlows: [],
+  //         },
+  //       );
+
+  //       setDuplicateGroups(report.duplicateGroups || []);
+
+  //       setFolders(report.folders || []);
+
+  //       setTechStack(report.techStack || []);
+
+  //       setUnusedFiles(report.unusedFiles || []);
+
+  //       setHealthScore(report.healthScore ?? 100);
+
+  //       setSecurityAudit(report.securityAudit || []);
+
+  //       // Refresh dashboard statistics
+  //       await loadDashboard();
+
+  //       setMessage("Project scanned successfully");
+  //     } else {
+  //       setMessage(data.message || "Scan failed.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Scan error:", error);
+
+  //     setMessage("Could not connect to backend.");
+  //   }
+
+  //   setLoading(false);
+  // };
+const scanProject = async () => {
+  if (!projectFile) {
+    setMessage("Please select a ZIP file first.");
+    return;
+  }
+
+  setLoading(true);
+  setMessage("");
+  setAnswer("");
+
+  try {
+    const token = localStorage.getItem("devlens_token");
+
+    if (!token) {
+      setMessage("Please login before scanning a project.");
+      return;
+    }
+
+    const formData = new FormData();
+
+    // IMPORTANT:
+    // "project" must match upload.single("project")
+    formData.append("project", projectFile);
+
+    const response = await fetch(
+      `${API_URL}/api/scan/upload`,
+      {
         method: "POST",
 
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
 
-        body: JSON.stringify({
-          projectPath,
-        }),
-      });
+        body: formData,
+      },
+    );
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (data.success) {
-        const report = data.report || data;
-
-        setFiles(report.files || []);
-
-        setTotalFiles(report.totalFiles || report.files?.length || 0);
-
-        setSummary(
-          report.summary || {
-            reactComponents: 0,
-            javascriptFiles: 0,
-            cssFiles: 0,
-            jsonFiles: 0,
-            backendFiles: 0,
-            otherFiles: 0,
-          },
-        );
-
-        setInsights(
-          report.insights || {
-            components: [],
-            importantFiles: [],
-          },
-        );
-
-        setFlows(report.flows || []);
-
-        setRouteHealth(
-          report.routeHealth || {
-            totalApiCalls: 0,
-            matchedApiCalls: 0,
-            unmatchedApiCalls: 0,
-            unmatchedFlows: [],
-          },
-        );
-
-        setDuplicateGroups(report.duplicateGroups || []);
-
-        setFolders(report.folders || []);
-
-        setTechStack(report.techStack || []);
-
-        setUnusedFiles(report.unusedFiles || []);
-
-        setHealthScore(report.healthScore ?? 100);
-
-        setSecurityAudit(report.securityAudit || []);
-
-        // Refresh dashboard statistics
-        await loadDashboard();
-
-        setMessage("Project scanned successfully");
-      } else {
-        setMessage(data.message || "Scan failed.");
-      }
-    } catch (error) {
-      console.error("Scan error:", error);
-
-      setMessage("Could not connect to backend.");
+    if (!response.ok || !data.success) {
+      setMessage(
+        data.message || "Could not scan project.",
+      );
+      return;
     }
 
-    setLoading(false);
-  };
+    const report = data.report;
 
+    // Store file name for display/report download
+    setProjectPath(
+      report.projectName || projectFile.name,
+    );
+
+    setFiles(report.files || []);
+
+    setTotalFiles(
+      report.totalFiles ||
+        report.files?.length ||
+        0,
+    );
+
+    setSummary(
+      report.summary || {
+        reactComponents: 0,
+        javascriptFiles: 0,
+        cssFiles: 0,
+        jsonFiles: 0,
+        backendFiles: 0,
+        otherFiles: 0,
+      },
+    );
+
+    setInsights(
+      report.insights || {
+        components: [],
+        importantFiles: [],
+      },
+    );
+
+    setFlows(report.flows || []);
+
+    setRouteHealth(
+      report.routeHealth || {
+        totalApiCalls: 0,
+        matchedApiCalls: 0,
+        unmatchedApiCalls: 0,
+        unmatchedFlows: [],
+      },
+    );
+
+    setDuplicateGroups(
+      report.duplicateGroups || [],
+    );
+
+    setFolders(report.folders || []);
+
+    setTechStack(report.techStack || []);
+
+    setUnusedFiles(report.unusedFiles || []);
+
+    setHealthScore(
+      report.healthScore ?? 100,
+    );
+
+    setSecurityAudit(
+      report.securityAudit || [],
+    );
+
+    // Refresh dashboard statistics
+    await loadDashboard();
+
+    setMessage(
+      "Project ZIP scanned successfully!",
+    );
+  } catch (error) {
+    console.error(
+      "Scan error:",
+      error,
+    );
+
+    setMessage(
+      "Could not connect to backend.",
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   // ==========================================
   // FILTER FILES
   // ==========================================
@@ -1221,7 +1350,7 @@ ${
       </section>
       {/* SCANNER */}
 
-      <section className="scanner-card">
+      {/* <section className="scanner-card">
         <h2>Scan Project</h2>
 
         <label>Project Path</label>
@@ -1242,7 +1371,75 @@ ${
         <button className="download-button" onClick={downloadReport}>
           Download Project Report (.md)
         </button>
-      </section>
+      </section> */}
+      <section className="scanner-card">
+  <h2>Scan Project</h2>
+
+  <label>Upload Project ZIP</label>
+
+  <input
+    type="file"
+    accept=".zip"
+    onChange={(event) => {
+      const file = event.target.files?.[0];
+
+      if (!file) {
+        return;
+      }
+
+      if (
+        !file.name
+          .toLowerCase()
+          .endsWith(".zip")
+      ) {
+        setProjectFile(null);
+
+        setMessage(
+          "Please select a valid ZIP file.",
+        );
+
+        event.target.value = "";
+
+        return;
+      }
+
+      setProjectFile(file);
+
+      setProjectPath(file.name);
+
+      setMessage("");
+    }}
+  />
+
+  {projectFile && (
+    <p className="selected-file">
+      Selected project: {projectFile.name}
+    </p>
+  )}
+
+  <button
+    onClick={scanProject}
+    disabled={loading || !projectFile}
+  >
+    {loading
+      ? "Uploading and Scanning..."
+      : "Scan Project"}
+  </button>
+
+  {message && (
+    <p className="message">
+      {message}
+    </p>
+  )}
+
+  <button
+    className="download-button"
+    onClick={downloadReport}
+    disabled={files.length === 0}
+  >
+    Download Project Report (.md)
+  </button>
+</section>
 
       {/* PROJECT SUMMARY */}
 

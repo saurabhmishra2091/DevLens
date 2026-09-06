@@ -28,6 +28,19 @@ const storage = multer.diskStorage({
   },
 });
 
+// const fileFilter = (req, file, cb) => {
+//   const extension = path
+//     .extname(file.originalname)
+//     .toLowerCase();
+
+//   if (extension !== ".zip") {
+//     return cb(
+//       new Error("Only ZIP files are allowed")
+//     );
+//   }
+
+//   cb(null, true);
+// };
 const fileFilter = (req, file, cb) => {
   const extension = path
     .extname(file.originalname)
