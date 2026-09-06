@@ -6,11 +6,18 @@ import {
 
 export const AuthContext = createContext();
 
-// Backend API URL
+// ==========================================
+// BACKEND API URL
+// ==========================================
+// Vercel:
+// VITE_API_URL = https://devlens-backend-lyum.onrender.com
+//
+// Local:
+// http://localhost:5000
+// ==========================================
+
 const API_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : "https://devlens-backend-lyum.onrender.com";
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -48,10 +55,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("devlens_token");
       }
     } catch (error) {
-      console.error(
-        "Auth check failed:",
-        error
-      );
+      console.error("Auth check failed:", error);
     } finally {
       setLoading(false);
     }
@@ -76,10 +80,7 @@ export const AuthProvider = ({ children }) => {
   // LOGIN
   // ==========================================
 
-  const login = async (
-    email,
-    password
-  ) => {
+  const login = async (email, password) => {
     try {
       const response = await fetch(
         `${API_URL}/api/auth/login`,
@@ -102,9 +103,7 @@ export const AuthProvider = ({ children }) => {
       if (!response.ok || !data.success) {
         return {
           success: false,
-          message:
-            data.message ||
-            "Login failed",
+          message: data.message || "Login failed",
         };
       }
 
@@ -121,15 +120,11 @@ export const AuthProvider = ({ children }) => {
         user: data.user,
       };
     } catch (error) {
-      console.error(
-        "Login error:",
-        error
-      );
+      console.error("Login error:", error);
 
       return {
         success: false,
-        message:
-          "Could not connect to server",
+        message: "Could not connect to server",
       };
     }
   };
@@ -167,8 +162,7 @@ export const AuthProvider = ({ children }) => {
         return {
           success: false,
           message:
-            data.message ||
-            "Registration failed",
+            data.message || "Registration failed",
         };
       }
 
@@ -185,15 +179,11 @@ export const AuthProvider = ({ children }) => {
         user: data.user,
       };
     } catch (error) {
-      console.error(
-        "Registration error:",
-        error
-      );
+      console.error("Registration error:", error);
 
       return {
         success: false,
-        message:
-          "Could not connect to server",
+        message: "Could not connect to server",
       };
     }
   };
@@ -205,11 +195,8 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       const storedToken =
-        localStorage.getItem(
-          "devlens_token"
-        );
+        localStorage.getItem("devlens_token");
 
-      // Tell backend to clear its cookie
       if (storedToken) {
         await fetch(
           `${API_URL}/api/auth/logout`,
@@ -231,9 +218,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setToken("");
 
-      localStorage.removeItem(
-        "devlens_token"
-      );
+      localStorage.removeItem("devlens_token");
     }
   };
 
