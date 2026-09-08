@@ -1753,114 +1753,538 @@ ${
 // ==========================================
 
 function App() {
-  const { user, logout } = useContext(AuthContext);
+  const {
+  user,
+  logout,
+  changePassword,
+  deleteAccount,
+} = useContext(AuthContext);
 
   const navigate = useNavigate();
-
   const [showSettings, setShowSettings] = useState(false);
+
+const [showChangePassword, setShowChangePassword] =
+  useState(false);
+
+const [showDeleteAccount, setShowDeleteAccount] =
+  useState(false);
+
+const [currentPassword, setCurrentPassword] =
+  useState("");
+
+const [newPassword, setNewPassword] =
+  useState("");
+
+const [confirmPassword, setConfirmPassword] =
+  useState("");
+
+const [deletePassword, setDeletePassword] =
+  useState("");
+
+const [settingsError, setSettingsError] =
+  useState("");
+
+const [settingsSuccess, setSettingsSuccess] =
+  useState("");
+
+const [settingsLoading, setSettingsLoading] =
+  useState(false);
+
+  
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+  const handleChangePassword = async (event) => {
+  event.preventDefault();
+
+  setSettingsError("");
+  setSettingsSuccess("");
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    setSettingsError("Please fill all fields");
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    setSettingsError(
+      "New password and confirm password do not match"
+    );
+    return;
+  }
+
+  if (newPassword.length < 6) {
+    setSettingsError(
+      "New password must be at least 6 characters"
+    );
+    return;
+  }
+
+  setSettingsLoading(true);
+
+  const result = await changePassword(
+    currentPassword,
+    newPassword
+  );
+
+  setSettingsLoading(false);
+
+  if (!result.success) {
+    setSettingsError(result.message);
+    return;
+  }
+
+  setSettingsSuccess(
+    "Password changed successfully"
+  );
+
+  setCurrentPassword("");
+  setNewPassword("");
+  setConfirmPassword("");
+
+  setTimeout(() => {
+    setShowChangePassword(false);
+    setSettingsSuccess("");
+  }, 1500);
+};
+const handleDeleteAccount = async (event) => {
+  event.preventDefault();
+
+  setSettingsError("");
+  setSettingsSuccess("");
+
+  if (!deletePassword) {
+    setSettingsError(
+      "Please enter your password to continue"
+    );
+    return;
+  }
+
+  const confirmed = window.confirm(
+    "Are you sure? This will permanently delete your account and all saved reports. This action cannot be undone."
+  );
+
+  if (!confirmed) return;
+
+  setSettingsLoading(true);
+
+  const result = await deleteAccount(
+    deletePassword
+  );
+
+  setSettingsLoading(false);
+
+  if (!result.success) {
+    setSettingsError(result.message);
+    return;
+  }
+
+  setShowDeleteAccount(false);
+  setShowSettings(false);
+
+  alert(
+    "Your account has been deleted successfully."
+  );
+
+  navigate("/login");
+};
 
   return (
-    <div className="app">
-      <header className="header">
-        <div>
-          <h1>DevLens</h1>
+  <div className="app">
+    <header className="header">
+      <div>
+        <h1>DevLens</h1>
 
-          <p>AI Project Understanding Platform</p>
+        <p>AI Project Understanding Platform</p>
+      </div>
+
+      {user && (
+        <div className="user-profile-header">
+          <span>
+            Welcome, <strong>{user.name}</strong>
+          </span>
+
+          <button
+            onClick={() => {
+              setShowSettings(true);
+              setSettingsError("");
+              setSettingsSuccess("");
+            }}
+            className="settings-btn"
+          >
+            Account Settings
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="logout-btn"
+          >
+            Logout
+          </button>
         </div>
+      )}
+    </header>
 
-        {user && (
-  <div className="user-profile-header">
-    <span>
-      Welcome, <strong>{user.name}</strong>
-    </span>
+    {/* ========================================== */}
+    {/* ACCOUNT SETTINGS MODAL */}
+    {/* ========================================== */}
 
-    <button
-      onClick={() => setShowSettings(true)}
-      className="settings-btn"
-    >
-      Account Settings
-    </button>
-
-    <button
-      onClick={handleLogout}
-      className="logout-btn"
-    >
-      Logout
-    </button>
-  </div>
-)}
-      </header>
-{showSettings && (
-  <div
-    className="settings-overlay"
-    onClick={() => setShowSettings(false)}
-  >
-    <div
-      className="account-settings-modal"
-      onClick={(event) => event.stopPropagation()}
-    >
-      <div className="settings-modal-header">
-        <div>
-          <h2>Account Settings</h2>
-          <p>Manage your DevLens account</p>
-        </div>
-
-        <button
-          className="close-settings-btn"
-          onClick={() => setShowSettings(false)}
+    {showSettings && (
+      <div
+        className="settings-overlay"
+        onClick={() => setShowSettings(false)}
+      >
+        <div
+          className="account-settings-modal"
+          onClick={(event) =>
+            event.stopPropagation()
+          }
         >
-          ×
-        </button>
-      </div>
+          <div className="settings-modal-header">
+            <div>
+              <h2>Account Settings</h2>
 
-      <div className="settings-option">
-        <div>
-          <h3>Change Password</h3>
+              <p>
+                Manage your DevLens account
+              </p>
+            </div>
 
-          <p>
-            Update your password to keep
-            your account secure.
-          </p>
+            <button
+              type="button"
+              className="close-settings-btn"
+              onClick={() => {
+                setShowSettings(false);
+                setSettingsError("");
+                setSettingsSuccess("");
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          {/* CHANGE PASSWORD */}
+
+          <div className="settings-option">
+            <div>
+              <h3>🔐 Change Password</h3>
+
+              <p>
+                Update your password to keep
+                your account secure.
+              </p>
+            </div>
+
+            <button
+              className="change-password-btn"
+              onClick={() => {
+                setShowSettings(false);
+
+                setShowChangePassword(true);
+
+                setSettingsError("");
+                setSettingsSuccess("");
+
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+              }}
+            >
+              Change Password
+            </button>
+          </div>
+
+          {/* DELETE ACCOUNT */}
+
+          <div className="settings-option danger-option">
+            <div>
+              <h3>🗑️ Delete Account</h3>
+
+              <p>
+                Permanently delete your account
+                and all saved project reports.
+              </p>
+            </div>
+
+            <button
+              className="delete-account-btn"
+              onClick={() => {
+                setShowSettings(false);
+
+                setShowDeleteAccount(true);
+
+                setSettingsError("");
+                setSettingsSuccess("");
+
+                setDeletePassword("");
+              }}
+            >
+              Delete Account
+            </button>
+          </div>
         </div>
-
-        <button className="change-password-btn">
-          Change Password
-        </button>
       </div>
+    )}
 
-      <div className="settings-option danger-option">
-        <div>
-          <h3>Delete Account</h3>
+    {/* ========================================== */}
+    {/* CHANGE PASSWORD MODAL */}
+    {/* ========================================== */}
 
-          <p>
-            Permanently delete your account
-            and all saved project reports.
-          </p>
+    {showChangePassword && (
+      <div
+        className="settings-overlay"
+        onClick={() => {
+          if (!settingsLoading) {
+            setShowChangePassword(false);
+            setSettingsError("");
+            setSettingsSuccess("");
+          }
+        }}
+      >
+        <div
+          className="password-modal"
+          onClick={(event) =>
+            event.stopPropagation()
+          }
+        >
+          <div className="settings-modal-header">
+            <div>
+              <h2>Change Password</h2>
+
+              <p>
+                Enter your current password and
+                choose a new password.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="close-settings-btn"
+              disabled={settingsLoading}
+              onClick={() => {
+                setShowChangePassword(false);
+
+                setSettingsError("");
+                setSettingsSuccess("");
+
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          <form onSubmit={handleChangePassword}>
+            <input
+              type="password"
+              placeholder="Current Password"
+              value={currentPassword}
+              onChange={(event) =>
+                setCurrentPassword(
+                  event.target.value
+                )
+              }
+              disabled={settingsLoading}
+            />
+
+            <input
+              type="password"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(event) =>
+                setNewPassword(
+                  event.target.value
+                )
+              }
+              disabled={settingsLoading}
+            />
+
+            <input
+              type="password"
+              placeholder="Confirm New Password"
+              value={confirmPassword}
+              onChange={(event) =>
+                setConfirmPassword(
+                  event.target.value
+                )
+              }
+              disabled={settingsLoading}
+            />
+
+            {settingsError && (
+              <p className="settings-error">
+                {settingsError}
+              </p>
+            )}
+
+            {settingsSuccess && (
+              <p className="settings-success">
+                {settingsSuccess}
+              </p>
+            )}
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="cancel-btn"
+                disabled={settingsLoading}
+                onClick={() => {
+                  setShowChangePassword(false);
+
+                  setSettingsError("");
+                  setSettingsSuccess("");
+
+                  setCurrentPassword("");
+                  setNewPassword("");
+                  setConfirmPassword("");
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="change-password-btn"
+                disabled={settingsLoading}
+              >
+                {settingsLoading
+                  ? "Changing Password..."
+                  : "Change Password"}
+              </button>
+            </div>
+          </form>
         </div>
-
-        <button className="delete-account-btn">
-          Delete Account
-        </button>
       </div>
-    </div>
+    )}
+
+    {/* ========================================== */}
+    {/* DELETE ACCOUNT MODAL */}
+    {/* ========================================== */}
+
+    {showDeleteAccount && (
+      <div
+        className="settings-overlay"
+        onClick={() => {
+          if (!settingsLoading) {
+            setShowDeleteAccount(false);
+
+            setSettingsError("");
+            setDeletePassword("");
+          }
+        }}
+      >
+        <div
+          className="password-modal delete-modal"
+          onClick={(event) =>
+            event.stopPropagation()
+          }
+        >
+          <div className="settings-modal-header">
+            <div>
+              <h2>Delete Account</h2>
+
+              <p className="danger-text">
+                This action is permanent and
+                cannot be undone.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="close-settings-btn"
+              disabled={settingsLoading}
+              onClick={() => {
+                setShowDeleteAccount(false);
+
+                setSettingsError("");
+                setDeletePassword("");
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          <p className="delete-warning">
+            Deleting your account will permanently
+            remove your DevLens account and all
+            saved scan reports.
+          </p>
+
+          <form onSubmit={handleDeleteAccount}>
+            <input
+              type="password"
+              placeholder="Enter your password to confirm"
+              value={deletePassword}
+              onChange={(event) =>
+                setDeletePassword(
+                  event.target.value
+                )
+              }
+              disabled={settingsLoading}
+            />
+
+            {settingsError && (
+              <p className="settings-error">
+                {settingsError}
+              </p>
+            )}
+
+            <div className="delete-actions">
+              <button
+                type="button"
+                className="cancel-btn"
+                disabled={settingsLoading}
+                onClick={() => {
+                  setShowDeleteAccount(false);
+
+                  setSettingsError("");
+                  setDeletePassword("");
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="delete-account-btn"
+                disabled={settingsLoading}
+              >
+                {settingsLoading
+                  ? "Deleting Account..."
+                  : "Permanently Delete Account"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+
+    {/* ========================================== */}
+    {/* ROUTES */}
+    {/* ========================================== */}
+
+    <Routes>
+      <Route
+        path="/login"
+        element={<Login />}
+      />
+
+      <Route
+        path="/register"
+        element={<Register />}
+      />
+
+      <Route element={<ProtectedRoute />}>
+        <Route
+          path="/"
+          element={<DashboardView />}
+        />
+      </Route>
+    </Routes>
   </div>
-)}
-      <Routes>
-        <Route path="/login" element={<Login />} />
-
-        <Route path="/register" element={<Register />} />
-
-        <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<DashboardView />} />
-        </Route>
-      </Routes>
-    </div>
-  );
+);
 }
 
 export default App;
