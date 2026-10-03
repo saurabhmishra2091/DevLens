@@ -23,10 +23,7 @@ const protect = async (req, res, next) => {
 
   try {
     // Verify JWT token signature
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "devlens_super_secret_jwt_key_2026_safe"
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Attach user object to request
     req.user = await User.findById(decoded.id).select("-password");
