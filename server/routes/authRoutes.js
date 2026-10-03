@@ -6,6 +6,8 @@ const {
   logoutUser,
   changePassword,
   deleteAccount,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -15,17 +17,9 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/me", protect, getUserProfile);
 router.post("/logout", logoutUser);
-// Change password
-router.put(
-  "/change-password",
-  protect,
-  changePassword
-);
+router.put("/change-password", protect, changePassword);
+router.delete("/delete-account", protect, deleteAccount);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
-// Delete account
-router.delete(
-  "/delete-account",
-  protect,
-  deleteAccount
-);
 module.exports = router;

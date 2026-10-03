@@ -9,7 +9,7 @@ function ProtectedRoute() {
     return <div style={{ padding: "40px", color: "#38bdf8" }}>Loading user session...</div>;
   }
 
-  return user ? <Outlet /> : <Navigate to="/login" replace />;
+  return user ? <Outlet /> : <Navigate to="/landing" replace />;
 }
 
 export default ProtectedRoute;

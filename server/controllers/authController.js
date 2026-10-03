@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const User = require("../models/User");
 const ScanReport = require("../models/ScanReport");
 const bcrypt = require("bcryptjs");
@@ -5,11 +6,10 @@ const jwt = require("jsonwebtoken");
 
 // Helper function to generate JWT Token
 const generateToken = (id) => {
-  return jwt.sign(
-    { id },
-    process.env.JWT_SECRET || "devlens_super_secret_jwt_key_2026_safe",
-    { expiresIn: "1d" }
-  );
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET environment variable is not set");
+  }
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 };
 
 // Register a new user
@@ -251,4 +251,110 @@ exports.deleteAccount = async (req, res) => {
     });
   }
 };
-// i am not saving my coockies . please save my coockies
+// ==========================================
+// FORGOT PASSWORD
+// ==========================================
+
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide your email address",
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+    // Always return success to prevent email enumeration
+    if (!user) {
+      return res.json({
+        success: true,
+        message: "If that email exists, a reset token has been generated.",
+      });
+    }
+
+    // Generate a secure random token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Hash the token before storing (store hash, send plain)
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+    await user.save();
+
+    // Store the plain token temporarily so the user can retrieve it once
+    // via GET /api/auth/reset-token (protected by the same token lookup).
+    // We keep the plain token in memory only for this response.
+    res.json({
+      success: true,
+      message: "Password reset token generated. Copy it — it is only shown once.",
+      resetToken,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ==========================================
+// RESET PASSWORD
+// ==========================================
+
+exports.resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { newPassword } = req.body;
+
+  try {
+    if (!newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "New password is required",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters",
+      });
+    }
+
+    // Hash the incoming token to compare with stored hash
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Reset token is invalid or has expired",
+      });
+    }
+
+    // Set new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpire = null;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Password reset successfully. You can now log in.",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

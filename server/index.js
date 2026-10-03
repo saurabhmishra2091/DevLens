@@ -5,6 +5,13 @@ dns.setServers([
   "1.1.1.1"
 ]);
 require("dotenv").config();
+
+// Fail fast if required secrets are missing
+if (!process.env.JWT_SECRET) {
+  console.error("FATAL: JWT_SECRET environment variable is not set. Refusing to start.");
+  process.exit(1);
+}
+
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
